@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Isométrico - Proyecto DAM2</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <!-- Canvas Container -->
+  <div id="canvas-container"></div>
+  
+  <!-- Welcome Screen -->
+  <div id="welcome-screen">
+    <div class="welcome-content">
+      <h1>🎮 Minecraft Isométrico</h1>
+      <p>Proyecto Final - Análisis de Motores de Juegos</p>
+      <p>Controla a tu personaje y construye en un mundo 3D con vista isométrica</p>
+      <p><strong>WASD</strong> para mover • <strong>Espacio</strong> para saltar • <strong>Click</strong> para construir/destruir</p>
+      <button class="start-btn" onclick="startGame()">Comenzar a Jugar</button>
+    </div>
+  </div>
+  
+  <!-- UI Panel -->
+  <div id="ui-panel">
+    <h2>⌨️ Controles</h2>
+    <div class="control"><span class="key">WASD</span> - Mover personaje</div>
+    <div class="control"><span class="key">Espacio</span> - Saltar</div>
+    <div class="control"><span class="key">Click Izq.</span> - Destruir bloque</div>
+    <div class="control"><span class="key">Click Der.</span> - Colocar bloque</div>
+    <div class="control"><span class="key">1/2/3</span> - Tipo de bloque</div>
+    <div class="control"><span class="key">Rueda</span> - Zoom in/out</div>
+    <div class="control"><span class="key">Q/E</span> - Rotar cámara</div>
+  </div>
+  
+  <!-- Stats -->
+  <div id="stats">
+    <div><strong>FPS:</strong> <span id="fps">0</span></div>
+    <div><strong>Bloques:</strong> <span id="block-count">0</span></div>
+    <div><strong>Tipo:</strong> <span id="current-block">Grass</span></div>
+    <div><strong>Capa Y:</strong> <span id="player-layer">0</span></div>
+    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);">
+      <strong>🎲 Seed:</strong> <span id="world-seed">0</span>
+    </div>
+  </div>
+  
+  <!-- Inventory Panel -->
+  <div id="inventory" style="position: fixed; top: 220px; right: 20px; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 10px; color: white; font-family: 'Segoe UI', sans-serif; font-size: 14px; min-width: 150px;">
+    <h3 style="margin: 0 0 10px 0; font-size: 16px;">📦 Inventario</h3>
+    <div style="display: flex; align-items: center; margin: 5px 0;">
+      <div style="width: 20px; height: 20px; background: #4CAF50; margin-right: 10px; border-radius: 3px;"></div>
+      <span id="inv-grass">0</span>
+    </div>
+    <div style="display: flex; align-items: center; margin: 5px 0;">
+      <div style="width: 20px; height: 20px; background: #795548; margin-right: 10px; border-radius: 3px;"></div>
+      <span id="inv-dirt">0</span>
+    </div>
+    <div style="display: flex; align-items: center; margin: 5px 0;">
+      <div style="width: 20px; height: 20px; background: #9E9E9E; margin-right: 10px; border-radius: 3px;"></div>
+      <span id="inv-stone">0</span>
+    </div>
+  </div>
+  
+  <!-- Block Selector -->
+  <div id="block-selector">
+    <div class="block-btn selected" data-type="grass" data-key="1" style="background: #4CAF50;"></div>
+    <div class="block-btn" data-type="dirt" data-key="2" style="background: #795548;"></div>
+    <div class="block-btn" data-type="stone" data-key="3" style="background: #9E9E9E;"></div>
+  </div>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
+  <!-- Game Logic -->
+  <script src="/static/game.js"></script>
+</body>
+</html>
