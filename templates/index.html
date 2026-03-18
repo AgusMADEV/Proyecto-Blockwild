@@ -17,7 +17,13 @@
       <p>Proyecto Final - Análisis de Motores de Juegos</p>
       <p>Controla a tu personaje y construye en un mundo 3D con vista isométrica</p>
       <p><strong>WASD</strong> para mover • <strong>Espacio</strong> para saltar • <strong>Click</strong> para construir/destruir</p>
-      <button class="start-btn" onclick="startGame()">Comenzar a Jugar</button>
+      <label style="display: block; margin: 20px 0 10px; text-align: left;">
+        Nombre de jugador
+        <input id="playerName" type="text" maxlength="40" placeholder="Tu nick" 
+               style="width: 100%; padding: 10px; margin-top: 8px; border: 2px solid rgba(255,255,255,0.3); 
+               border-radius: 8px; background: rgba(255,255,255,0.9); font-size: 16px;" />
+      </label>
+      <button class="start-btn" id="startBtn">Comenzar a Jugar</button>
     </div>
   </div>
   
@@ -35,6 +41,9 @@
   
   <!-- Stats -->
   <div id="stats">
+    <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.2);">
+      <strong>👤 Jugador:</strong> <span id="player-name-display" style="color: #4CAF50;">---</span>
+    </div>
     <div><strong>FPS:</strong> <span id="fps">0</span></div>
     <div><strong>Bloques:</strong> <span id="block-count">0</span></div>
     <div><strong>Tipo:</strong> <span id="current-block">Grass</span></div>

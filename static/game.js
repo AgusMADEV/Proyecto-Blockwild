@@ -24,6 +24,10 @@ const BLOCK_TYPES = {
   stone: { color: 0x9E9E9E, name: 'Stone' }
 };
 
+// Referencias DOM
+const playerNameInput = document.getElementById('playerName');
+const startBtn = document.getElementById('startBtn');
+
 // Variables globales del juego
 let scene, camera, renderer, raycaster, mouse;
 let blocks = [];
@@ -35,6 +39,16 @@ let cameraAngle = 45;
 let cameraDistance = CONFIG.CAMERA_DISTANCE;
 let gameStarted = false;
 let worldSeed = Math.random() * 10000;
+
+// Estado de la sesión
+let gameState = {
+  playerId: null,
+  sessionId: null,
+  playerName: '',
+  startTime: 0,
+  blocksPlaced: 0,
+  blocksDestroyed: 0
+};
 
 // Sistema de items e inventario
 let items = [];
@@ -60,6 +74,61 @@ let blockMaterials = {};
 // FPS Counter
 let lastTime = Date.now();
 let frames = 0;
+
+// ============================================================================
+// API COMMUNICATION
+// ============================================================================
+
+async function api(endpoint, method = 'GET', body = null) {
+  const options = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  if (body) options.body = JSON.stringify(body);
+  
+  const response = await fetch(endpoint, options);
+  return response.json();
+}
+
+async function registerPlayer(name) {
+  const data = await api('/api/player/register', 'POST', { name });
+  if (!data.ok) throw new Error(data.error || 'Error al registrar jugador');
+  return data.player;
+}
+
+async function startSession(playerId) {
+  const data = await api('/api/session/start', 'POST', { 
+    player_id: playerId, 
+    mode: 'creative',
+    world_seed: Math.floor(worldSeed)
+  });
+  if (!data.ok) throw new Error(data.error || 'Error al iniciar sesión');
+  return data.session.id;
+}
+
+async function endSession() {
+  if (!gameState.sessionId) return;
+  
+  const playtime = Math.floor((Date.now() - gameState.startTime) / 1000);
+  
+  await api('/api/session/end', 'POST', {
+    session_id: gameState.sessionId,
+    result: 'quit',
+    blocks_placed: gameState.blocksPlaced,
+    blocks_destroyed: gameState.blocksDestroyed,
+    playtime_seconds: playtime
+  }).catch(() => {});
+}
+
+function sendEvent(eventType, eventValue, payload = {}) {
+  if (!gameState.sessionId) return;
+  api('/api/session/event', 'POST', {
+    session_id: gameState.sessionId,
+    event_type: eventType,
+    event_value: eventValue,
+    payload
+  }).catch(() => {});
+}
 
 // ============================================================================
 // INICIALIZACIÓN
@@ -298,6 +367,12 @@ function placeBlock(x, y, z, type, updateCount = true) {
   scene.add(mesh);
   blocks.push(mesh);
   
+  // Incrementar contador si es colocado por el jugador
+  if (updateCount && gameStarted) {
+    gameState.blocksPlaced++;
+    sendEvent('block_placed', 1, { type, x, y, z });
+  }
+  
   if (updateCount) updateBlockCount();
 }
 
@@ -307,6 +382,13 @@ function removeBlock(block) {
     createItem(block.userData.x + 0.5, block.userData.y + 0.5, block.userData.z + 0.5, block.userData.type);
     blocks.splice(index, 1);
     scene.remove(block);
+    
+    // Incrementar contador de bloques destruidos
+    if (gameStarted) {
+      gameState.blocksDestroyed++;
+      sendEvent('block_destroyed', 1, { type: block.userData.type });
+    }
+    
     updateBlockCount();
   }
 }
@@ -702,11 +784,54 @@ function updateBlockCount() {
   document.getElementById('block-count').textContent = blocks.length;
 }
 
-function startGame() {
-  document.getElementById('welcome-screen').classList.add('hidden');
-  gameStarted = true;
-  updateInventoryUI();
+async function startGame() {
+  const name = playerNameInput.value.trim();
+  if (name.length < 3) {
+    alert('El nombre debe tener al menos 3 caracteres');
+    playerNameInput.focus();
+    return;
+  }
+
+  try {
+    // Registrar jugador
+    const player = await registerPlayer(name);
+    gameState.playerId = player.id;
+    gameState.playerName = name;
+    
+    // Iniciar sesión
+    gameState.sessionId = await startSession(gameState.playerId);
+    gameState.startTime = Date.now();
+    gameState.blocksPlaced = 0;
+    gameState.blocksDestroyed = 0;
+    
+    console.log('✅ Jugador registrado:', player);
+    console.log('✅ Sesión iniciada:', gameState.sessionId);
+    
+    // Actualizar display del nombre
+    document.getElementById('player-name-display').textContent = name;
+    
+    // Iniciar juego
+    document.getElementById('welcome-screen').classList.add('hidden');
+    gameStarted = true;
+    updateInventoryUI();
+    
+    sendEvent('game_started', 1, { player: name, seed: Math.floor(worldSeed) });
+    
+  } catch (error) {
+    console.error('Error al iniciar:', error);
+    alert('No se pudo iniciar la partida: ' + error.message);
+  }
 }
+
+// Event listener para el botón de inicio
+startBtn.addEventListener('click', () => {
+  startGame();
+});
+
+// Finalizar sesión al cerrar la página
+window.addEventListener('beforeunload', () => {
+  endSession();
+});
 
 // Inicializar cuando se carga la página
 window.addEventListener('load', init);

@@ -158,6 +158,38 @@ body {
   line-height: 1.5;
 }
 
+.welcome-content label {
+  display: block;
+  margin: 20px 0 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.welcome-content input {
+  width: 100%;
+  padding: 12px 16px;
+  margin-top: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 16px;
+  color: #333;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.welcome-content input:focus {
+  outline: none;
+  border-color: white;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+.welcome-content input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
 .start-btn {
   margin-top: 30px;
   padding: 15px 40px;
@@ -175,6 +207,16 @@ body {
 .start-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.start-btn:active {
+  transform: translateY(0);
+}
+
+.start-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* Inventory Panel */
